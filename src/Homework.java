@@ -4,7 +4,8 @@ import stanford.karel.SuperKarel;
 import java.awt.*;
 
 public class Homework extends SuperKarel {
-
+    // TODO: Clean Up the code (use comment in correct way, make the code reusable by using functions, and try to merge some cases together)
+    // TODO: find way to try all maps automatically (Testing)
     /* You fill the code here */
     // Block of codes to run when game is started
     {
@@ -66,6 +67,7 @@ public class Homework extends SuperKarel {
     }
 
     public void getMapDimension() {
+        // TODO: You're assuming that the robot always in the most left bottom edit the code to handle all cases (if the robot in any point in the map)
         while (frontIsClear()) {
             move();
             width++;
@@ -79,6 +81,7 @@ public class Homework extends SuperKarel {
     }
 
     public void divideMap() {
+        // TODO: Compete the cases when width < 3 and refactor the code to be cleaner and try to merge the cases together.
         // Special case when the height or/and width is less than 3
         if (height < 3 && width < 3) {
             System.out.println("The Map Can't be Divided!");
@@ -144,6 +147,7 @@ public class Homework extends SuperKarel {
             // check when use double lines of beepers
             divideVertically();
             divideHorizontally();
+            // TODO: if you use double line you can optimize the code to decrease the number of steps by define punch of points to move on it (you need to make new function take a list of points and karel will got through these point in order) also you need a function to get these points.
         }
         // We should use double line of beepers when the measure is even
 
@@ -160,6 +164,8 @@ public class Homework extends SuperKarel {
     }
 
     public void moveInto(Point targetPoint, boolean putBeeper) {
+        // TODO: Make 2 helper function (moveVertically and moveHorizontally)
+        // TODO: Rather than turnLeft always handle all cases to either turnLeft or turnRight based on which is faster
         // on the x-axis
         if (targetPoint.x > currentLocation.x) {
             while (!facingEast())
