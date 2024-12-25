@@ -81,15 +81,64 @@ public class Homework extends SuperKarel {
     public void divideMap() {
         // Special case when the height or/and width is less than 3
         if (height < 3 && width < 3) {
-            // the map can't be divided.
-        } else if (height < 3 || width < 3) {
-            if (height < 3) {
-                // The map can't be divided vertically (using horizontal line)
-                // divide horizontally
-            } else if (width < 3) {
-                // The map can't be divided horizontally (using vertical line)
-                // divide vertically
+            System.out.println("The Map Can't be Divided!");
+        } else if (height < 3) {
+            // The map can't be divided vertically (using horizontal line)
+            // divide horizontally
+
+            // check divide into 4 using 3 or 6 lines
+            if (((width - 3) % 4 == 0 || (width - 6) % 4 == 0) && (width > 3)) {
+                // divide into 4 champers
+                if ((width - 3) % 4 == 0) {
+                    // use one line
+                    int chamberSize = (width - 3) / 4;
+                    for (int i = 3; i > 0; i--) { // 3 times = 3 lines
+                        int nextX = i * (chamberSize + 1);
+                        moveInto(new Point(nextX, currentLocation.y));
+                        moveInto(new Point(nextX, (currentLocation.y == 1) ? height : 1), true);
+                    }
+                } else {
+                    // use double line
+                    int chamberSize = (width - 6) / 4;
+                    for (int i = 3; i > 0; i--) { // 3 times = 3 lines
+                        int nextX = i * (chamberSize + 2);
+                        moveInto(new Point(nextX, currentLocation.y));
+                        moveInto(new Point(nextX, (currentLocation.y == 1) ? height : 1), true);
+                        nextX--;
+                        moveInto(new Point(nextX, currentLocation.y));
+                        moveInto(new Point(nextX, (currentLocation.y == 1) ? height : 1), true);
+                    }
+                }
+            } else if (((width - 2) % 3 == 0 || (width - 4) % 3 == 0) && (width > 4)) {
+                // divide into 3 chambers
+                if ((width - 2) % 3 == 0) {
+                    // use one line
+                    int chamberSize = (width - 2) / 3;
+                    for (int i = 2; i > 0; i--) { // 3 times = 3 lines
+                        int nextX = i * (chamberSize + 1);
+                        moveInto(new Point(nextX, currentLocation.y));
+                        moveInto(new Point(nextX, (currentLocation.y == 1) ? height : 1), true);
+                    }
+                } else {
+                    // use double line
+                    // Important: there is no need for this code
+                    // why?
+                    // this case will go to divide into 4
+                    // how?
+                    // the room size will be 3,6,9, ...
+                    // divide by 2 double lines -> 4
+                    // 3+4 in the divide into 4 case using 3 single line (3+4)-3 = 4 -> 4%4 = 0
+                    // and so on ...
+                }
+            } else {
+                // divide into 2 using one line
+                // even -> double
+                // odd -> single
+                divideVertically();
             }
+        } else if (width < 3) {
+            // The map can't be divided horizontally (using vertical line)
+            // divide vertically
         } else {
             // divide map to 4 champers using vertical and horizontal line
             // check when use double lines of beepers
@@ -145,7 +194,7 @@ public class Homework extends SuperKarel {
     }
 
     public void divideVertically() {
-// Based on height
+// Based on width
         // into 2
         if (width % 2 == 0) {
             // double line of beepers
@@ -160,7 +209,7 @@ public class Homework extends SuperKarel {
     }
 
     public void divideHorizontally() {
-        // Based on width
+        // Based on height
         // into 2
         if (height % 2 == 0) {
             // double line of beepers
@@ -177,10 +226,10 @@ public class Homework extends SuperKarel {
         }
     }
 
-    // function to check dimension to how many champers can be divided
+// function to check dimension to how many champers can be divided
 
-    // function to check when use double lines of beepers
+// function to check when use double lines of beepers
 
-    // Reset on load new world
+// Reset on load new world
 
 }
