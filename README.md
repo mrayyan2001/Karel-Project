@@ -111,15 +111,3 @@
 - More sophisticated algorithms for handling larger or irregular maps could be explored to improve the solution further.
 
 ---
-
-### **9. Appendix (if necessary)**
-
-**Code Listing**:
-- You can include the full code listing of `Homework.java` for completeness.
-
-**Screenshots/Results**:
-- Attach any relevant screenshots of Karel running the solution, if applicable, or describe the visual output.
-
----
-
-This structured approach will help you to detail the solution and optimizations clearly and systematically in your report.
