@@ -1,7 +1,7 @@
+import stanford.karel.KarelWorld;
 import stanford.karel.SuperKarel;
 
 import java.awt.*;
-
 
 public class Homework extends SuperKarel {
     // Defining constants for directions
@@ -13,8 +13,6 @@ public class Homework extends SuperKarel {
     // Defining constants for map dimension
     public static final int MIN_DIMENSION = 3;
 
-
-    // TODO: find way to try all maps automatically (Testing)
     /* You fill the code here */
     // Block of codes to run when game is started
     {
