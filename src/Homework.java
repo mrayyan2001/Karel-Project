@@ -1,10 +1,19 @@
-import stanford.karel.KarelWorld;
 import stanford.karel.SuperKarel;
 
 import java.awt.*;
 
+
 public class Homework extends SuperKarel {
-    // TODO: Clean Up the code (use comment in correct way, make the code reusable by using functions, and try to merge some cases together)
+    // Defining constants for directions
+    public static final int NORTH = 0;
+    public static final int EAST = 90;
+    public static final int SOUTH = 180;
+    public static final int WEST = 270;
+
+    // Defining constants for map dimension
+    public static final int MIN_DIMENSION = 3;
+
+
     // TODO: find way to try all maps automatically (Testing)
     /* You fill the code here */
     // Block of codes to run when game is started
@@ -27,21 +36,36 @@ public class Homework extends SuperKarel {
         usedBeepersCounter = 0;
     }
 
+    public void initialState() {
+        facingInto(WEST);
+        while (frontIsClear())
+            move();
+        facingInto(SOUTH);
+        while (frontIsClear())
+            move();
+        facingInto(EAST);
+    }
+
     @Override
     public void run() {
+        // Reset all measures
         resetAll();
+        // get width and height of the map
         getMapDimension();
+        // divide the map
         divideMap();
     }
 
     @Override
     public void putBeeper() {
+        // Override putBeeper method to monitor number of used beepers
         super.putBeeper();
         usedBeepersCounter++;
     }
 
     @Override
     public void move() {
+        // override move method to monitor number of steps, update current location, and print the stats
         super.move();
         moveCounter++;
         updateLocation();
@@ -49,8 +73,8 @@ public class Homework extends SuperKarel {
     }
 
     private static void printStats() {
-        System.out.println("-");
-        System.out.printf("Number of Movement: %d\n", moveCounter);
+        System.out.println("------------------------------------------");
+        System.out.printf("Number of Steps: %d\n", moveCounter);
         System.out.printf("Position (%d, %d)\n", currentLocation.x, currentLocation.y);
         System.out.printf("Used beepers: %d\n", usedBeepersCounter);
     }
@@ -67,7 +91,9 @@ public class Homework extends SuperKarel {
     }
 
     public void getMapDimension() {
-        // TODO: You're assuming that the robot always in the most left bottom edit the code to handle all cases (if the robot in any point in the map)
+        // TODO: Optimize the method if karel in any other corner and if not look first if in top, bottom, right or left (e.g if in the top then go to most left or right no need to go to the bottom)
+        // initial state in point(1,1) bottom left corner
+        initialState();
         while (frontIsClear()) {
             move();
             width++;
@@ -77,85 +103,57 @@ public class Homework extends SuperKarel {
             move();
             height++;
         }
-//        System.out.printf("Width: %d, Height: %d\n", width, height);
     }
 
-    public void divideMap() {
-        // TODO: Compete the cases when width < 3 and refactor the code to be cleaner and try to merge the cases together.
-        // Special case when the height or/and width is less than 3
-        if (height < 3 && width < 3) {
-            System.out.println("The Map Can't be Divided!");
-        } else if (height < 3) {
-            // The map can't be divided vertically (using horizontal line)
-            // divide horizontally
+    public int currentFacing() {
+        if (facingNorth())
+            return NORTH;
+        if (facingSouth())
+            return SOUTH;
+        if (facingEast())
+            return EAST;
+        return WEST;
+    }
 
-            // check divide into 4 using 3 or 6 lines
-            if (((width - 3) % 4 == 0 || (width - 6) % 4 == 0) && (width > 3)) {
-                // divide into 4 champers
-                if ((width - 3) % 4 == 0) {
-                    // use one line
-                    int chamberSize = (width - 3) / 4;
-                    for (int i = 3; i > 0; i--) { // 3 times = 3 lines
-                        int nextX = i * (chamberSize + 1);
-                        moveInto(new Point(nextX, currentLocation.y));
-                        moveInto(new Point(nextX, (currentLocation.y == 1) ? height : 1), true);
-                    }
-                } else {
-                    // use double line
-                    int chamberSize = (width - 6) / 4;
-                    for (int i = 3; i > 0; i--) { // 3 times = 3 lines
-                        int nextX = i * (chamberSize + 2);
-                        moveInto(new Point(nextX, currentLocation.y));
-                        moveInto(new Point(nextX, (currentLocation.y == 1) ? height : 1), true);
-                        nextX--;
-                        moveInto(new Point(nextX, currentLocation.y));
-                        moveInto(new Point(nextX, (currentLocation.y == 1) ? height : 1), true);
-                    }
-                }
-            } else if (((width - 2) % 3 == 0 || (width - 4) % 3 == 0) && (width > 4)) {
-                // divide into 3 chambers
-                if ((width - 2) % 3 == 0) {
-                    // use one line
-                    int chamberSize = (width - 2) / 3;
-                    for (int i = 2; i > 0; i--) { // 3 times = 3 lines
-                        int nextX = i * (chamberSize + 1);
-                        moveInto(new Point(nextX, currentLocation.y));
-                        moveInto(new Point(nextX, (currentLocation.y == 1) ? height : 1), true);
-                    }
-                } else {
-                    // use double line
-                    // Important: there is no need for this code
-                    // why?
-                    // this case will go to divide into 4
-                    // how?
-                    // the room size will be 3,6,9, ...
-                    // divide by 2 double lines -> 4
-                    // 3+4 in the divide into 4 case using 3 single line (3+4)-3 = 4 -> 4%4 = 0
-                    // and so on ...
-                }
-            } else {
-                // divide into 2 using one line
-                // even -> double
-                // odd -> single
-                divideVertically();
-            }
-        } else if (width < 3) {
-            // The map can't be divided horizontally (using vertical line)
-            // divide vertically
+    public void facingInto(int newFacing) {
+        // TODO: Optimize the method to use the lowest number of turning
+        while (currentFacing() != newFacing)
+            turnLeft();
+    }
+
+    public void moveHorizontally(int targetX, boolean putBeeper) {
+        if (targetX > currentLocation.x) {
+            facingInto(EAST);
         } else {
-            // divide map to 4 champers using vertical and horizontal line
-            // check when use double lines of beepers
-            divideVertically();
-            divideHorizontally();
-            // TODO: if you use double line you can optimize the code to decrease the number of steps by define punch of points to move on it (you need to make new function take a list of points and karel will got through these point in order) also you need a function to get these points.
+            facingInto(WEST);
         }
-        // We should use double line of beepers when the measure is even
+        while (currentLocation.x != targetX) {
+            if (putBeeper && noBeepersPresent())
+                putBeeper();
+            move();
+        }
+    }
 
-        // divide horizontally
-        // Based on the width
+    public void moveVertically(int targetY, boolean putBeeper) {
+        if (targetY > currentLocation.y) {
+            facingInto(NORTH);
+        } else {
+            facingInto(SOUTH);
+        }
+        while (currentLocation.y != targetY) {
+            if (putBeeper && noBeepersPresent())
+                putBeeper();
+            move();
+        }
+    }
 
-        // divide vertically
-        // Based on the height
+    public void moveInto(Point targetPoint, boolean putBeeper) {
+        if (targetPoint == null)
+            return;
+        moveHorizontally(targetPoint.x, putBeeper);
+        moveVertically(targetPoint.y, putBeeper);
+        if (putBeeper && noBeepersPresent())
+            putBeeper();
     }
 
     public void moveInto(Point targetPoint) {
@@ -163,79 +161,62 @@ public class Homework extends SuperKarel {
         moveInto(targetPoint, false);
     }
 
-    public void moveInto(Point targetPoint, boolean putBeeper) {
-        // TODO: Make 2 helper function (moveVertically and moveHorizontally)
-        // TODO: Rather than turnLeft always handle all cases to either turnLeft or turnRight based on which is faster
-        // on the x-axis
-        if (targetPoint.x > currentLocation.x) {
-            while (!facingEast())
-                turnLeft();
+    public int getNumberOfChambers(int dimension) {
+        if ((dimension - MIN_DIMENSION) % 4 == 0 || (dimension - 6) % 4 == 0) {
+            return 4;
+        } else if ((dimension - 2) % 3 == 0 || (dimension - 4) % 3 == 0) {
+            return 3;
         } else {
-            while (!facingWest())
-                turnLeft();
-        }
-        while (currentLocation.x != targetPoint.x) {
-            if (putBeeper && noBeepersPresent())
-                putBeeper();
-            move();
-        }
-
-        // on the y-axis
-        if (targetPoint.y > currentLocation.y) {
-            while (!facingNorth())
-                turnLeft();
-        } else {
-            while (!facingSouth())
-                turnLeft();
-        }
-        while (currentLocation.y != targetPoint.y) {
-            if (putBeeper && noBeepersPresent())
-                putBeeper();
-            move();
-        }
-        if (putBeeper && noBeepersPresent())
-            putBeeper();
-
-
-    }
-
-    public void divideVertically() {
-// Based on width
-        // into 2
-        if (width % 2 == 0) {
-            // double line of beepers
-            moveInto(new Point(width / 2 + 1, height));
-            moveInto(new Point(width / 2 + 1, 1), true);
-            moveInto(new Point(width / 2, 1));
-            moveInto(new Point(width / 2, height), true);
-        } else {
-            moveInto(new Point(width / 2 + 1, height));
-            moveInto(new Point(width / 2 + 1, 1), true);
+            return 2;
         }
     }
 
-    public void divideHorizontally() {
-        // Based on height
-        // into 2
-        if (height % 2 == 0) {
-            // double line of beepers
-            moveInto(new Point(width, height / 2 + 1));
-            moveInto(new Point(1, height / 2 + 1), true);
-            moveInto(new Point(1, height / 2));
-            moveInto(new Point(width, height / 2), true);
-
-            // we can decrease number of steps by use list of points like this
-            // p1 ---> p2
+    public void divideMap() {
+        if (height < MIN_DIMENSION && width < MIN_DIMENSION) {
+            System.out.println("The Map Can't be Divided!");
+        } else if (height >= MIN_DIMENSION && width >= MIN_DIMENSION) {
+            divideVerticallyIntoChambers(2);
+            divideHorizontallyIntoChambers(2);
+            // TODO: if you use double line you can optimize the code to decrease the number of steps by define punch of points to move on it (you need to make new function take a list of points and karel will got through these point in order) also you need a function to get these points.
+        } else if (height < MIN_DIMENSION) {
+            divideVerticallyIntoChambers(getNumberOfChambers(width));
         } else {
-            moveInto(new Point(1, height / 2 + 1));
-            moveInto(new Point(width, height / 2 + 1), true);
+            divideHorizontallyIntoChambers(getNumberOfChambers(height));
         }
     }
 
-// function to check dimension to how many champers can be divided
+    public void divideVerticallyIntoChambers(int numberOfChambers) {
+        boolean doubleLine = (width - (numberOfChambers - 1) * 2) % numberOfChambers == 0;
+        int chamberSize = (width - (doubleLine ? ((numberOfChambers - 1) * 2) : (numberOfChambers - 1))) / numberOfChambers;
 
-// function to check when use double lines of beepers
+        for (int i = (numberOfChambers - 1); i > 0; i--) { // 3 times = 3 lines
+            int nextX = i * (chamberSize + (doubleLine ? 2 : 1));
+            moveInto(new Point(nextX, height));
+            moveInto(new Point(nextX, (currentLocation.y == 1) ? height : 1), true);
+            if (doubleLine) {
+                nextX--;
+                moveInto(new Point(nextX, currentLocation.y));
+                moveInto(new Point(nextX, (currentLocation.y == 1) ? height : 1), true);
+            }
+        }
+    }
 
-// Reset on load new world
+    public void divideHorizontallyIntoChambers(int numberOfChambers) {
+        // Determine if double lines are needed
+        boolean doubleLine = (height - (numberOfChambers - 1) * 2) % numberOfChambers == 0;
+        int chamberSize = (height - (doubleLine ? ((numberOfChambers - 1) * 2) : (numberOfChambers - 1))) / numberOfChambers;
 
+        for (int i = (numberOfChambers - 1); i > 0; i--) { // Loop to draw dividing lines
+            int nextY = i * (chamberSize + (doubleLine ? 2 : 1));
+            moveInto(new Point(width, nextY));
+            moveInto(new Point((currentLocation.x == 1) ? width : 1, nextY), true);
+
+            if (doubleLine) {
+                // Add the second line for double-line divisions
+                nextY--;
+                moveInto(new Point(currentLocation.x, nextY));
+                moveInto(new Point((currentLocation.x == 1) ? width : 1, nextY), true);
+            }
+        }
+    }
 }
